@@ -60,21 +60,31 @@ class UserController extends Controller
     }
     public function login(Request $request)
     {
-        $jwtAuth = new JwtAut();
+        $jwtAuth = new JwtAuth();
         //recibir post
         $json = $request->input('json',null);
         $params = json_decode($json);
 
         $email = (!is_null($json) && isset($params->email))? $params->email : null;
         $password = (!is_null($json) && isset($params->password))? $params->password : null;
-        $getToken = (!is_null($json) && isset($params->gettoken)? $params->gattoken : true;
+        $getToken = (!is_null($json) && isset($params->gettoken))? $params->gettoken : null;
         //Cifrar la password
         $pwd = hash('sha256',$password);
 
-        if(!is_null($email) && !is_null($password)){
-            $sigup = $jwtAuth->signup($email,$pwd);
+        if(!is_null($email) && !is_null($password) && ($getToken == null || $getToken == 'false')){
+            $sigup = $jwtAuth->sigup($email,$pwd);
 
-            return response()->json($sigup,200);
+           // return response()->json($sigup,200);
+        }elseif($getToken != null){
+                //var_dump($getToken); die();
+            $sigup = $jwtAuth->sigup($email,$pwd,$getToken);
+            //return response()->json($sigup,200);
+        }else{
+            $sigup=array(
+                'status' => 'error',
+                'message' => 'Envia tus datos por post'
+            );
         }
+        return response()->json($sigup,200);
     }
 }

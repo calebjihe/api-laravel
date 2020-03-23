@@ -10,9 +10,9 @@ class JwtAuth{
     public $key;
     public function __construct()
     {
-        $this->key ='esta-es-mi-clave-secreta-*12312312657657857575758758775';
+        $this->key ='esta-es-mi-clave-secreta-12312312657657857575758758775';
     }
-    public function sigup($mail,$password,$getToken=null)
+    public function sigup($email,$password,$getToken=null)
     {
         $user =User::where(
             array(
@@ -32,12 +32,12 @@ class JwtAuth{
                     'name'=>$user->name,
                     'surname'=>$user->surname,
                     'iat'=>time(),
-                    'exp'=>rime()+(7*24*60*60)
+                    'exp'=>time()+(7*24*60*60)
                 );
                 $jwt=JWT::encode($token, $this->key,'HS256');
                 $decoded = JWT::decode($jwt,$this->key,array('HS256'));
 
-                if(!is_null($getToken)){
+                if(is_null($getToken)){
                     return $jwt;
                 }else{
                     return $decoded;
@@ -57,13 +57,13 @@ class JwtAuth{
         try{
             $decoded=JWT::decode($jwt,$this->key,array('HS256'));
 
-        }cath(\UnexpectedValueException $e){
+        }catch(\UnexpectedValueException $e){
             $auth=false;
         }catch(\DomainException $e){
             $auth=false;
         }
 
-        if(is_object($decoded) && isset($decoded->sub)){
+        if(isset($decoded) && is_object($decoded) && isset($decoded->sub)){
             $auth=true;
         }else{
             $auth=false;
